@@ -33,3 +33,15 @@ Transcrições automáticas podem conter erros; confira áudio e código antes d
 - Analista financeiro de referência: `C:/Users/Leia/atelier/arcadia-aitelier/ateliers/invest/agents/market-analyst.md`.
 
 Arquivos-fonte originais não foram alterados para montar este repositório. Links de integração foram adaptados para este pacote.
+
+## BMAD
+
+Adicionado por solicitação de Léia em 23/09/2026: snapshot integral de `_bmad/` do Arcadia, com 341 arquivos. O manifest registra versão 6.0.4 para core e bmm.
+
+- `core/`: agentes, tarefas e workflows centrais.
+- `bmm/`: agentes, equipes, dados e workflows de desenvolvimento.
+- `brand-content/`: módulo de conteúdo e marca presente na instalação local.
+- `_config/`: manifests e customizações.
+- `_memory/`: configuração e padrões de documentação do tech-writer.
+
+Origem: `C:/Users/Leia/Documents/Arcadia/arcadia-pro/_bmad/`. Conteúdo preservado integralmente. Configurações e workflows podem depender da estrutura do projeto Arcadia; inclusão no repositório não comprova execução independente nem instalação de integrações do editor.
