@@ -1,0 +1,112 @@
+# Cross-Atelier Lens — Director Atelier
+# Compares a target atelier against mature reference ateliers (blog, research)
+# to identify missing patterns, structural gaps, and maturity improvements.
+
+lens: cross-atelier
+name: Cross-Atelier Maturity
+description: >
+  Compares the target atelier against production-grade ateliers (blog, research)
+  to surface missing architectural patterns, structural gaps, and maturity
+  improvements. Uses the 10 blog patterns from atelier-patterns.yaml as the
+  reference checklist.
+agent: architecture-reviewer
+weight: 1.2
+
+mode: cross-reference
+
+# The 10 patterns every mature atelier should have (from blog analysis)
+maturity_checklist:
+  - id: config-yaml
+    name: Centralized config.yaml
+    description: "Single YAML with model routing, budget, pipeline phases, feature flags"
+    required: true
+    check: "Does the atelier have a config.yaml with model_routing, budget, and pipeline phases?"
+
+  - id: phase-orchestration
+    name: Phase-based orchestration with checkpoints
+    description: "Orchestrator class with numbered phases, JSON checkpoint after each"
+    required: true
+    check: "Does scripts/ have an orchestrator with saveCheckpoint() or equivalent?"
+
+  - id: content-types
+    name: Content type as first-class abstraction
+    description: "data/content-types/*.yaml — each type defines style, QA weights, publish behavior"
+    required: false
+    check: "Does the atelier support multiple content types via YAML configs?"
+
+  - id: qa-scoring
+    name: Composite QA scoring
+    description: "Multi-dimension weighted QA — not just pass/fail"
+    required: true
+    check: "Does the atelier have a QA scorer with weighted categories?"
+
+  - id: approval-gate
+    name: Approval gateway before publishing
+    description: "Status workflow: pending → approved → published with revision loop"
+    required: false
+    check: "Is there an approval step between generation and publication?"
+
+  - id: batch-logging
+    name: Structured batch logging
+    description: "Per-item JSON log + batch summary for every pipeline run"
+    required: false
+    check: "Does the atelier write structured logs for each run?"
+
+  - id: pluggable-sources
+    name: Pluggable source acquisition
+    description: "Source plugins in scripts/sources/ — normalized brief interface"
+    required: false
+    check: "Can the atelier accept input from multiple sources (CLI, JSON, CSV)?"
+
+  - id: model-routing
+    name: Model routing with fallback chains
+    description: "Each task routed to optimal LLM, with fallback chain on failure"
+    required: true
+    check: "Does config.yaml define model_routing with fallback entries?"
+
+  - id: cost-tracking
+    name: Per-phase cost tracking with budget
+    description: "Cost tracker with soft warning + hard stop thresholds"
+    required: true
+    check: "Does the orchestrator track cost per phase with budget limits?"
+
+  - id: test-suite
+    name: Test suite exists
+    description: "test/ directory with unit tests for core lib modules"
+    required: true
+    check: "Does the atelier have a test/ directory with at least 3 test files?"
+
+# Structural completeness check
+structure_checklist:
+  - dir: agents/
+    min_files: 2
+    description: "At least 2 specialized agents"
+  - dir: lib/
+    min_files: 3
+    description: "At least 3 lib modules for pipeline logic"
+  - dir: scripts/
+    min_files: 1
+    description: "At least 1 CLI orchestration script"
+  - dir: tasks/
+    min_files: 3
+    description: "At least 3 task definitions"
+  - dir: data/
+    min_files: 1
+    description: "At least 1 data/reference file"
+  - file: config.yaml
+    description: "Centralized configuration"
+
+scan_instructions: |
+  1. Load the target atelier's file tree
+  2. For each maturity_checklist item, check if the pattern exists
+  3. For each structure_checklist item, check if the dir/file exists with min files
+  4. Compare against reference_atelier (from targets.yaml) to show concrete examples
+  5. Generate findings for each missing pattern with:
+     - What's missing
+     - What the reference atelier does (with file path)
+     - Suggested implementation approach
+     - Effort estimate (small/medium/large)
+  6. Priority scoring:
+     - required=true patterns missing → priority 90+
+     - required=false patterns missing → priority 60-80
+     - Structure gaps → priority 70-85

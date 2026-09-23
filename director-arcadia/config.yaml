@@ -1,0 +1,172 @@
+# Director Atelier — Development Director
+# Continuous improvement engine: scan → backlog → execute → repeat
+#
+# Scans codebases through structured lenses, builds persistent backlog,
+# enables "next" workflow for sequential execution.
+
+name: Director
+version: 1.0.0
+short-title: director
+description: >
+  Development Director — automated continuous improvement loop.
+  Scans codebases through structured lenses, builds prioritized backlogs,
+  and enables sequential execution of improvements.
+
+# Model routing — per-phase
+models:
+  scan:
+    provider: openrouter
+    model: anthropic/claude-sonnet-4-20250514
+    temperature: 0.3
+    max_tokens: 8192
+    description: Scan agents (code-reviewer, ux-reviewer, etc.)
+  orchestration:
+    provider: openrouter
+    model: google/gemini-2.0-flash-001
+    temperature: 0.2
+    max_tokens: 4096
+    description: Orchestration and curation (scan-director, backlog-curator)
+  execution:
+    provider: openrouter
+    model: anthropic/claude-sonnet-4-20250514
+    temperature: 0.4
+    max_tokens: 16384
+    description: Executing improvements (code changes)
+
+# Cost control
+cost:
+  per_scan:
+    budget_usd: 0.50
+    hard_stop_usd: 1.00
+  per_session:
+    budget_usd: 2.00
+    hard_stop_usd: 5.00
+
+# Priority scoring weights (must sum to 1.0)
+# v4: Rebalanced to include competitive_alignment.
+# PRD items (0.15 prd) > competitive items (0.15 competitive) > tactical fixes (no boost).
+priority:
+  weights:
+    impact: 0.30
+    effort_inverse: 0.20
+    freshness: 0.10
+    lens_weight: 0.10
+    prd_alignment: 0.15
+    competitive_alignment: 0.15
+  # Effort-to-score mapping (higher score = less effort = prioritized)
+  effort_scores:
+    small: 100
+    medium: 60
+    large: 30
+    xlarge: 10
+  # Impact severity-to-score mapping
+  impact_scores:
+    critical: 100
+    high: 80
+    medium: 50
+    low: 25
+
+# Scan defaults
+scan:
+  max_files_per_lens: 50
+  max_file_size_kb: 100
+  include_patterns:
+    - "**/*.ts"
+    - "**/*.tsx"
+    - "**/*.js"
+    - "**/*.jsx"
+    - "**/*.css"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.json"
+    - "**/*.md"
+  exclude_patterns:
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/build/**"
+    - "**/.next/**"
+    - "**/coverage/**"
+    - "**/*.min.*"
+    - "**/package-lock.json"
+    - "**/*.map"
+    - "**/logs/**"
+
+# Validation — post-execution checks
+validation:
+  pass_threshold: 100  # all available checks must pass
+  timeout_ms: 30000
+  checks:
+    lint: true
+    typecheck: true
+    test: true
+  execution_qa:
+    enabled: true
+    pass_threshold: 70
+    weights:
+      implementation_accuracy: 0.30
+      code_quality: 0.25
+      pattern_compliance: 0.20
+      test_impact: 0.15
+      scope_discipline: 0.10
+
+# Strategy — PRD-driven backlog generation
+strategy:
+  stories_dir: docs/stories
+  active_status_filter:
+    - in_progress
+    - pending
+  prd_alignment_score: 100  # score for items with prd source
+
+# Story generation — auto-create story files from competitive findings
+story_generation:
+  enabled: true
+  min_effort: medium
+  min_priority: medium
+  max_stories_per_session: 10
+  stories_dir: docs/stories
+
+# Evolution — PRD lifecycle management
+evolution:
+  session_threshold: 5     # sessions between evolution runs
+  blueprints_dir: data/blueprints
+  reference_ateliers:
+    - blog
+    - research
+    - carousel
+
+# Backlog management
+backlog:
+  prune_completed_after_days: 90
+  max_items: 500
+  dedup_title_similarity_threshold: 0.85
+
+# Autopilot — autonomous BMAD sprint loop (SM -> Dev -> QA per story)
+# Ships an ALREADY-PLANNED sprint end to end without asking between stories.
+# Complements scan-and-execute (which DISCOVERS work); autopilot SHIPS it.
+# See AUTOPILOT.md (activation guide) + data/autopilot-playbook.md (the why).
+autopilot:
+  enabled: true
+  task: tasks/autopilot.md
+  dispatch: .claude/commands/director.md   # `autopilot` mode router lives here
+  script: scripts/autopilot.js             # deterministic spine: next-story / validate / record
+  agents:
+    sm: agents/sprint-master.md     # Bob — writes the ultimate story context, slices
+    dev: agents/sprint-dev.md       # Amelia — implements in a fresh subagent
+    qa: agents/sprint-qa.md         # Quinn — adversarial fresh-eyes gate
+  # Reuses existing Director infra rather than reinventing it:
+  reuses:
+    - lib/validation-runner.js      # the QA gate (auto-detect + run lint/typecheck/tests)
+    - lib/metrics-tracker.js        # records the run -> velocity/burndown
+    - lib/story-generator.js        # getNextStoryId / generateStorySlug for the SM
+    - lib/prd-parser.js             # parseStoryDir / inferStatus -> detect deferred ACs
+  defaults:
+    sprint_status: docs/implementation-artifacts/sprint-status.yaml
+    max_stories: 0                  # 0 = run until backlog dry
+    adversarial_qa: true            # fresh QA subagent re-runs gates + fault-injects
+    isolate_in_worktree: true       # never share a working tree with another session
+  # Stops the loop NEVER pushes past (even in YOLO mode):
+  hard_stops:
+    - red_gate_out_of_scope         # a gate fails and the fix isn't in this story
+    - human_decision_required       # spec doesn't settle a product/design call
+    - irreversible_outward_action   # deploy / publish / send / destructive migration
+  # Model routing reuses the `models:` block above (scan->QA, execution->Dev).

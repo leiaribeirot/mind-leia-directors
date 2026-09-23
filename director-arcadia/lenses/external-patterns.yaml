@@ -1,0 +1,81 @@
+# External Patterns Lens — Director Atelier
+# Enriches scan findings with external research via Exa semantic search.
+# Discovers improvements, patterns, and solutions from similar open-source projects.
+
+lens: external-patterns
+name: External Patterns & Research
+description: >
+  Uses Exa semantic search to discover improvements, patterns, and solutions
+  already implemented in similar open-source projects. Finds best practices,
+  architectural patterns, and proven solutions that apply to the target codebase.
+agent: feature-scout
+weight: 0.5
+
+# This lens works differently from code-scanning lenses:
+# Instead of reading local files, it queries Exa for patterns relevant
+# to the target's tech stack and identified issues.
+mode: external-research
+
+research_queries:
+  # Queries are templates — {target_tech} and {issue} are replaced at runtime
+  - query: "open source {target_tech} project implementing {pattern} pattern with clean architecture"
+    focus: architecture
+  - query: "best practices for {target_tech} error handling and loading states in production app"
+    focus: ui-ux
+  - query: "performance optimization techniques for {target_tech} reducing bundle size and improving load time"
+    focus: performance
+  - query: "automated testing strategies for {target_tech} with high coverage and maintainable test suite"
+    focus: dx-tooling
+  - query: "{target_tech} refactoring patterns to reduce code duplication and improve maintainability"
+    focus: code-quality
+
+# Technology mapping for targets
+tech_stack:
+  videodrome: "React TypeScript Supabase Tanstack Query"
+  desktop: "Electron React TypeScript Tauri"
+  blog-atelier: "Node.js JavaScript AI agents content pipeline"
+  core: "Node.js JavaScript ESM utility library"
+  director: "Node.js JavaScript ESM self-improvement pipeline CLI"
+  presentation: "Node.js JavaScript ESM presentation deck pipeline"
+  testimonials: "Node.js JavaScript video testimonials pipeline"
+  site: "React TypeScript Vite Supabase"
+
+criteria:
+  - id: proven-patterns
+    name: Proven Patterns
+    description: >
+      Architectural patterns or code organization strategies that similar
+      projects have successfully adopted.
+    severity: medium
+    examples:
+      - "React Query mutation wrapper pattern from TanStack examples"
+      - "Supabase RLS patterns from official templates"
+
+  - id: community-solutions
+    name: Community Solutions
+    description: >
+      Specific solutions to common problems found in open-source projects,
+      blog posts, or documentation.
+    severity: low
+    examples:
+      - "Error boundary + React Query error handling pattern"
+      - "Optimistic update recipe from TanStack Query docs"
+
+  - id: library-upgrades
+    name: Library & Tool Upgrades
+    description: >
+      New library versions, alternative tools, or configuration improvements
+      that the community has validated.
+    severity: low
+    examples:
+      - "Migrate from glob v7 to v10 for native ESM + promises"
+      - "Use Zod for runtime validation instead of manual checks"
+
+scan_instructions: |
+  1. Determine the target's tech stack from the tech_stack mapping above.
+  2. For each research query template, substitute {target_tech} and run via Exa search.
+  3. From search results, extract actionable improvements that apply to the target.
+  4. Cross-reference findings with existing backlog to avoid duplicates.
+  5. Focus on patterns that are proven (multiple sources) not experimental.
+  6. Each finding should include the source URL for reference.
+  7. Estimate effort based on how well the pattern fits existing architecture.

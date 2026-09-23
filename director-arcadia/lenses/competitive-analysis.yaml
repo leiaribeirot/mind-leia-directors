@@ -1,0 +1,86 @@
+# Competitive Analysis Lens — Director Atelier
+# Evaluates feature gaps by comparing against competitor products.
+# Requires target to have a `competitors` block in targets.yaml.
+
+lens: competitive-analysis
+name: Competitive Analysis
+description: >
+  Product-level gap analysis against known competitors. Identifies features,
+  UX patterns, engagement mechanics, and data richness that 2+ competitors
+  offer but we don't. Generates PM-grade findings, not tactical code fixes.
+agent: product-analyst
+weight: 1.0
+
+criteria:
+  - id: feature-gap
+    name: Feature Gap
+    severity: high
+    description: >
+      A concrete feature that 2+ competitors have and we don't.
+      Must be user-facing and something users would expect or switch
+      platforms for. Not every competitor feature is a gap — only flag
+      features that represent a real product disadvantage.
+    examples:
+      - "Letterboxd and Trakt both have Year in Review — Videodrome doesn't"
+      - "MAL and Letterboxd have custom lists — Videodrome only has watchlist"
+      - "All 4 competitors have activity feeds — Videodrome has no social features"
+
+  - id: ux-gap
+    name: UX Pattern Gap
+    severity: medium
+    description: >
+      A UX pattern or interaction that competitors handle better or that
+      has become a standard expectation in the domain. Not cosmetic — must
+      affect usability or user satisfaction.
+    examples:
+      - "Letterboxd diary entry is 2 taps — Videodrome logging requires 5 steps"
+      - "Trakt auto-detects what you're watching — Videodrome is manual-only"
+      - "MAL has inline editing on list views — Videodrome requires opening detail page"
+
+  - id: engagement-gap
+    name: Engagement / Social Gap
+    severity: medium
+    description: >
+      Social or gamification mechanics that drive user retention and
+      engagement. Includes follower systems, activity feeds, achievements,
+      streaks, sharing, and community features.
+    examples:
+      - "Letterboxd has followers + reviews feed — Videodrome has no social layer"
+      - "Trakt has badges for watching milestones — Videodrome has no gamification"
+      - "MAL has user forums per title — Videodrome has no community features"
+
+  - id: data-richness-gap
+    name: Data / Metadata Gap
+    severity: low
+    description: >
+      Metadata, curation, or data depth that competitors surface and
+      users value. Includes cast/crew info, where-to-watch, detailed stats,
+      recommendation engines, and editorial content.
+    examples:
+      - "Letterboxd shows where to stream/rent — Videodrome has no watch providers"
+      - "Trakt shows detailed viewing stats (time spent, genres) — Videodrome has basic counts"
+      - "MAL has character pages with voice actors — Videodrome only shows title info"
+
+research_queries:
+  templates:
+    - '"{competitor} features list 2025 2026"'
+    - '"{competitor} vs {other} comparison features"'
+    - '"best {domain} app features users want"'
+    - '"{competitor} UX review design patterns"'
+    - '"{competitor} what users love reddit"'
+  variables:
+    competitor: "From target.competitors[].name"
+    other: "Second competitor in the list"
+    domain: "From target.product_context.domain"
+
+scan_instructions: |
+  1. Load the target's `competitors` and `product_context` blocks from targets.yaml.
+  2. For each competitor, review research bank entries (or run Exa queries if uncached).
+  3. Extract a feature list per competitor from research results.
+  4. Compare competitor features against `product_context.current_features`.
+  5. Flag features that 2+ competitors have but the target doesn't — these are gaps.
+  6. Classify each gap into the appropriate criterion (feature, ux, engagement, data).
+  7. Assess effort realistically: small = config/data change, medium = new component, large = new subsystem.
+  8. Prioritize by: user impact > competitive urgency > implementation effort.
+  9. Generate findings with `source: "competitive"` and `competitive_alignment: 100`.
+  10. Include competitor evidence in description: "Letterboxd has X, Trakt has Y".
