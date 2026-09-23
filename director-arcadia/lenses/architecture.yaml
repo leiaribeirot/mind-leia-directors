@@ -1,0 +1,77 @@
+# Architecture Lens — Director Atelier
+# Evaluates structural quality, coupling, patterns, and API design.
+
+lens: architecture
+name: Architecture
+description: >
+  Identifies tight coupling, pattern inconsistencies, API design issues,
+  and missing error boundaries.
+agent: architecture-reviewer
+weight: 0.9
+
+criteria:
+  - id: coupling
+    name: Tight Coupling
+    description: >
+      Components directly importing from sibling features, business logic
+      in UI components, direct database calls from presentation layer,
+      circular dependencies between modules.
+    severity: high
+    examples:
+      - "Videodrome component imports directly from blog feature folder"
+      - "React component contains raw Supabase query instead of service layer"
+      - "Module A imports from B, B imports from A — circular dependency"
+
+  - id: pattern-consistency
+    name: Pattern Consistency
+    description: >
+      Mixed state management approaches (some hooks, some context, some stores),
+      inconsistent service layer patterns, mixed fetch strategies,
+      different error handling patterns across similar modules.
+    severity: medium
+    examples:
+      - "3 features use custom hooks, 2 use Zustand, 1 uses raw Context"
+      - "Some services return raw data, others return { data, error } shape"
+      - "Half the mutations use optimistic updates, half don't"
+
+  - id: api-design
+    name: API Design
+    description: >
+      Inconsistent API response shapes, missing input validation,
+      overly broad endpoints, missing pagination, inconsistent error codes.
+    severity: high
+    examples:
+      - "GET /users returns array, GET /posts returns { data: [], total: N }"
+      - "POST endpoint accepts any payload — no schema validation"
+      - "API returns all 10K records without pagination support"
+
+  - id: error-boundaries
+    name: Error Boundaries
+    description: >
+      Missing React error boundaries around feature sections, no fallback UI
+      for component crashes, global error handler gaps, unhandled async errors.
+    severity: high
+    examples:
+      - "No ErrorBoundary wrapping Videodrome feature — crash blanks entire page"
+      - "Supabase edge function has no global error handler"
+      - "Promise.all without individual catch — one failure kills all"
+
+  - id: separation-of-concerns
+    name: Separation of Concerns
+    description: >
+      Business logic mixed with presentation, configuration in code instead
+      of config files, hardcoded values that should be environment variables.
+    severity: medium
+    examples:
+      - "Price calculation logic inside React component render function"
+      - "API URL hardcoded in fetch call instead of config"
+      - "Feature flags as boolean variables instead of config/env"
+
+scan_instructions: |
+  1. Map the dependency graph — which modules import from where?
+  2. Check for consistent patterns across similar modules (hooks, services, components).
+  3. Verify separation between UI, business logic, and data layers.
+  4. Look for hardcoded values that should be configurable.
+  5. Check for error boundaries at feature/route level.
+  6. Verify API response shapes are consistent.
+  7. Focus on structural issues that compound over time.

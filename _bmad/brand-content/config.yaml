@@ -1,0 +1,22 @@
+module_id: brand-content
+module_name: Brand Content Production
+version: 1.0.0
+description: Custom content production agents, workflows, and templates for brand management
+
+agents_dir: agents
+workflows_dir: workflows
+checklists_dir: checklists
+qa_gates_dir: qa/gates
+
+content_types:
+  - instagram-carousel
+  - instagram-story
+  - instagram-feed
+  - instagram-ad
+  - blog-post
+
+formats:
+  carousel: "1080x1350 (4:5)"
+  story: "1080x1920 (9:16)"
+  feed: "1080x1350 (4:5)"
+  ad: "1080x1920 (9:16)"

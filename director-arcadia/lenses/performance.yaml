@@ -1,0 +1,75 @@
+# Performance Lens — Director Atelier
+# Evaluates runtime performance, bundle efficiency, and optimization opportunities.
+
+lens: performance
+name: Performance
+description: >
+  Identifies bundle size issues, query optimization opportunities,
+  caching gaps, and lazy loading candidates.
+agent: code-reviewer
+weight: 0.8
+
+criteria:
+  - id: bundle-size
+    name: Bundle Size
+    description: >
+      Heavy dependencies imported without tree-shaking, barrel imports pulling
+      entire libraries, components that should be lazy-loaded, unused polyfills.
+    severity: medium
+    examples:
+      - "import lodash instead of import lodash/debounce — pulls entire lib"
+      - "date-fns imported via barrel — 200KB added for 2 functions"
+      - "Heavy chart library loaded on every page, only used in dashboard"
+
+  - id: query-optimization
+    name: Query Optimization
+    description: >
+      N+1 query patterns, missing select() to limit fields, queries without
+      proper indexes, redundant refetches, excessive polling intervals.
+    severity: high
+    examples:
+      - "Each list item triggers individual fetch — N+1 pattern"
+      - "Supabase query selects * when only 3 fields needed"
+      - "React Query refetches on every window focus for static data"
+
+  - id: caching
+    name: Caching Strategy
+    description: >
+      Missing React Query staleTime configuration, no memoization on expensive
+      computations, API responses not cached, redundant API calls on navigation.
+    severity: medium
+    examples:
+      - "staleTime: 0 on data that changes daily — unnecessary refetches"
+      - "Expensive sort/filter runs on every render — needs useMemo"
+      - "Same API call made by 3 components — no shared query key"
+
+  - id: lazy-loading
+    name: Lazy Loading
+    description: >
+      Routes not code-split, heavy components loaded upfront, images without
+      lazy loading, below-fold content loaded eagerly.
+    severity: medium
+    examples:
+      - "All routes imported statically — initial bundle is 2MB"
+      - "Modal content loaded even when modal is closed"
+      - "Images in scrollable list load all at once — no intersection observer"
+
+  - id: render-performance
+    name: Render Performance
+    description: >
+      Unnecessary re-renders from missing memo/callback, inline object creation
+      in JSX props, context providers causing cascade re-renders.
+    severity: medium
+    examples:
+      - "Parent re-render causes 50 list items to re-render — needs React.memo"
+      - "style={{}} in JSX creates new object every render"
+      - "Context with 10 values — single change re-renders all consumers"
+
+scan_instructions: |
+  1. Check import statements for barrel imports and heavy dependencies.
+  2. Review React Query configurations — staleTime, refetch policies.
+  3. Look for N+1 patterns in data fetching hooks.
+  4. Check if routes use React.lazy() or dynamic imports.
+  5. Look for missing useMemo/useCallback on expensive operations.
+  6. Check image elements for loading="lazy" attribute.
+  7. Estimate performance impact: high (seconds saved), medium (ms saved), low (bytes saved).

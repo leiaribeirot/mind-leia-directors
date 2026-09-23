@@ -1,0 +1,102 @@
+# UI/UX Lens — Director Atelier
+# Evaluates user interface quality, accessibility, and interaction patterns.
+
+lens: ui-ux
+name: UI/UX Quality
+description: >
+  Identifies responsiveness issues, accessibility gaps, missing loading/error/empty
+  states, visual inconsistencies, and interaction pattern problems.
+agent: ux-reviewer
+weight: 0.9
+
+criteria:
+  - id: responsiveness
+    name: Responsive Design
+    description: >
+      Missing mobile breakpoints, fixed pixel widths that break on small screens,
+      overflow issues, touch target sizes below 44px, missing viewport meta.
+    severity: high
+    examples:
+      - "Table component has no horizontal scroll on mobile — content clips"
+      - "Modal width fixed at 600px — overflows on phones"
+      - "Button 24px tall — below 44px touch target minimum"
+
+  - id: accessibility
+    name: Accessibility (a11y)
+    description: >
+      Missing alt text on images, insufficient color contrast, missing ARIA labels
+      on interactive elements, non-semantic HTML, keyboard navigation gaps,
+      missing focus indicators.
+    severity: high
+    examples:
+      - "Image in card has no alt attribute — screen reader reads filename"
+      - "Custom dropdown has no ARIA roles — invisible to assistive tech"
+      - "Focus outline removed via CSS without alternative indicator"
+
+  - id: loading-states
+    name: Loading States
+    description: >
+      Missing loading indicators during async operations, no skeleton screens,
+      buttons without disabled state during submission, missing progress feedback.
+    severity: medium
+    examples:
+      - "Form submit triggers API call but button shows no loading state"
+      - "Page renders empty for 2s before data loads — no skeleton"
+      - "Delete action has no pending indicator — user clicks multiple times"
+
+  - id: error-states
+    name: Error States
+    description: >
+      Missing error UI for failed API calls, generic error messages without
+      recovery options, no retry buttons, unhandled edge cases in UI.
+    severity: high
+    examples:
+      - "Network error shows blank screen instead of error message"
+      - "Form validation errors not shown inline next to fields"
+      - "API 404 shows raw error object instead of friendly message"
+
+  - id: empty-states
+    name: Empty States
+    description: >
+      No visual feedback when lists/grids are empty, missing onboarding hints,
+      bare containers when data hasn't been added yet.
+    severity: low
+    examples:
+      - "Empty watchlist shows blank white space — no 'Add your first movie' prompt"
+      - "Search results show nothing when no matches — no 'No results' message"
+      - "Dashboard with no data shows empty charts instead of placeholder"
+
+  - id: visual-consistency
+    name: Visual Consistency
+    description: >
+      Inconsistent spacing, mixed border radius values, color values not using
+      design tokens, inconsistent typography scales, mixed icon styles.
+    severity: low
+    examples:
+      - "Buttons use 4px, 8px, and 12px border radius across different views"
+      - "Hardcoded #333 instead of using --text-primary variable"
+      - "Mix of Lucide and Heroicons in same feature"
+
+  - id: competitor-ux-patterns
+    name: Competitor UX Patterns
+    description: >
+      UX patterns that competitors implement as standard and users expect.
+      Cross-references competitive research (Phase 1b) with local TSX components
+      to identify interaction patterns we're missing. Only flag patterns that
+      2+ competitors treat as standard, not niche features.
+    severity: medium
+    examples:
+      - "Letterboxd and Trakt use inline quick-rate on list views — Videodrome requires opening detail"
+      - "MAL and Letterboxd have keyboard shortcuts for rating — Videodrome is click-only"
+      - "All competitors have swipe-to-action on mobile lists — Videodrome uses tap-only"
+
+scan_instructions: |
+  1. Focus on TSX/JSX components and CSS/styled-components files.
+  2. Check each component for loading, error, and empty states.
+  3. Verify interactive elements have proper ARIA attributes.
+  4. Look for hardcoded dimensions that break responsiveness.
+  5. Check for design token usage vs hardcoded values.
+  6. If competitive research exists (Phase 1b), cross-reference competitor UX patterns
+     against local components to identify interaction gaps.
+  7. Assess effort: small (add missing alt text), medium (add loading state), large (redesign component).
+  8. Group related findings by component or view.

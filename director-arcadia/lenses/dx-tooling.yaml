@@ -1,0 +1,65 @@
+# DX & Tooling Lens — Director Atelier
+# Evaluates developer experience, testing coverage, and tooling gaps.
+
+lens: dx-tooling
+name: DX & Tooling
+description: >
+  Identifies missing tests, script automation gaps, and configuration
+  improvements that enhance developer productivity.
+agent: code-reviewer
+weight: 0.6
+
+criteria:
+  - id: missing-tests
+    name: Missing Tests
+    description: >
+      Core business logic without unit tests, utilities without test coverage,
+      complex functions that should have edge case tests, integration tests
+      for critical paths.
+    severity: high
+    examples:
+      - "Price calculation utility has no tests — manual verification only"
+      - "Auth flow has no integration test — breaks go unnoticed"
+      - "Complex date parsing function untested — 5 edge cases possible"
+
+  - id: script-automation
+    name: Script Automation
+    description: >
+      Manual repetitive tasks that could be npm scripts, missing convenience
+      scripts for common workflows, deployment steps not scripted.
+    severity: low
+    examples:
+      - "Database seed requires 4 manual steps — could be one script"
+      - "No npm script for full lint+typecheck+test cycle"
+      - "Cache purge documented in README but not scripted"
+
+  - id: config-improvements
+    name: Configuration Improvements
+    description: >
+      Missing or outdated TypeScript config, ESLint rules not matching codebase
+      patterns, missing path aliases, outdated dependencies.
+    severity: low
+    examples:
+      - "tsconfig missing strict null checks — type safety gap"
+      - "ESLint allows console.log — should warn in production code"
+      - "Path aliases defined in tsconfig but not in jest config"
+
+  - id: documentation-gaps
+    name: Documentation Gaps
+    description: >
+      Complex modules without inline documentation, missing JSDoc on public APIs,
+      outdated comments that no longer match code, missing setup instructions.
+    severity: low
+    examples:
+      - "Exported function `resolveStrategy()` has no JSDoc — callers guessing"
+      - "Comment says 'TODO: implement caching' but caching was added 3 months ago"
+      - "New developer can't set up locally — no .env.example"
+
+scan_instructions: |
+  1. Check for test files alongside source files — identify untested modules.
+  2. Look at package.json scripts — what common workflows are missing?
+  3. Review config files (tsconfig, eslint, jest) for outdated or missing options.
+  4. Check for TODO/FIXME/HACK comments that indicate known issues.
+  5. Verify public APIs have adequate inline documentation.
+  6. Focus on high-value testing gaps (business logic, utilities, auth).
+  7. Don't flag missing tests on simple components — focus on logic-heavy code.

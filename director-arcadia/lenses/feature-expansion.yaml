@@ -1,0 +1,66 @@
+# Feature Expansion Lens — Director Atelier
+# Identifies opportunities for new features, automation, and integrations.
+
+lens: feature-expansion
+name: Feature Expansion
+description: >
+  Spots missing features that would improve user experience, automation
+  opportunities, integration gaps, and untapped data.
+agent: feature-scout
+weight: 0.7
+
+criteria:
+  - id: missing-features
+    name: Missing Features
+    description: >
+      Features that users would expect but are absent. Standard patterns
+      in similar apps that haven't been implemented. Incomplete feature sets
+      where some operations exist but others don't.
+    severity: medium
+    examples:
+      - "Movie detail page has 'Add to watchlist' but no 'Remove from watchlist'"
+      - "User can create reviews but can't edit or delete them"
+      - "Search exists but no filtering or sorting options"
+
+  - id: automation
+    name: Automation Opportunities
+    description: >
+      Manual processes that could be automated, repetitive tasks that
+      benefit from scripts, scheduled operations that aren't set up.
+    severity: medium
+    examples:
+      - "Blog images manually uploaded — could auto-optimize and resize"
+      - "Weekly report compiled manually — could be automated script"
+      - "Cache purge requires manual WP Admin login — could be scripted"
+
+  - id: integration-gaps
+    name: Integration Gaps
+    description: >
+      Disconnected systems that should share data, missing webhooks or
+      event handlers, features that exist in isolation but could
+      enhance each other.
+    severity: low
+    examples:
+      - "Videodrome ratings not connected to blog content recommendations"
+      - "Blog publication doesn't trigger social media auto-post"
+      - "Desktop app doesn't sync state with web app"
+
+  - id: data-opportunities
+    name: Data Opportunities
+    description: >
+      Useful data being discarded or not collected, analytics gaps,
+      insights that could be derived from existing data but aren't.
+    severity: low
+    examples:
+      - "User viewing patterns not tracked — can't recommend content"
+      - "API response times not logged — can't identify slow endpoints"
+      - "Content engagement data exists but no dashboard to visualize"
+
+scan_instructions: |
+  1. Map the feature's current capabilities — what can users do?
+  2. Identify gaps: what's missing that a user would expect?
+  3. Look for incomplete CRUD (create exists but not update/delete).
+  4. Check for manual processes in scripts/ that could be automated.
+  5. Look at data models — is collected data being underutilized?
+  6. Estimate effort realistically: small = add a button, large = new subsystem.
+  7. Focus on high-impact, low-effort opportunities first.

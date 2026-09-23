@@ -1,0 +1,91 @@
+# Code Quality Lens — Director Atelier
+# Evaluates code hygiene, maintainability, and technical debt.
+
+lens: code-quality
+name: Code Quality
+description: >
+  Identifies dead code, poor error handling, duplication patterns,
+  naming inconsistencies, type safety gaps, and excessive complexity.
+agent: code-reviewer
+weight: 1.0
+
+criteria:
+  - id: dead-code
+    name: Dead Code
+    description: >
+      Unused imports, unreachable code, exported functions with no consumers,
+      commented-out code blocks, unused variables or parameters.
+    severity: medium
+    examples:
+      - "Unused import of `useState` in component that uses no state"
+      - "Function `formatLegacyDate()` exported but never imported anywhere"
+      - "Commented-out fetch call on lines 45-60"
+
+  - id: error-handling
+    name: Error Handling
+    description: >
+      Missing try/catch around async operations, swallowed errors (empty catch),
+      generic error messages, missing error boundaries in React components,
+      unhandled promise rejections.
+    severity: high
+    examples:
+      - "fetch() call without catch — network errors crash the component"
+      - "catch(e) {} — error silently swallowed, no logging"
+      - "Generic 'Something went wrong' without actionable context"
+
+  - id: duplication
+    name: Code Duplication
+    description: >
+      Copy-pasted logic across files, repeated patterns that should be
+      extracted into shared utilities, duplicate type definitions,
+      similar components that could share a base.
+    severity: medium
+    examples:
+      - "Toast success/error pattern duplicated in 15 mutation hooks"
+      - "Date formatting logic repeated in 4 components"
+      - "Same Supabase query builder pattern in 6 service files"
+
+  - id: naming
+    name: Naming Consistency
+    description: >
+      Inconsistent naming conventions (camelCase vs snake_case mixing),
+      misleading function/variable names, non-descriptive names (data, info, item),
+      inconsistent file naming patterns.
+    severity: low
+    examples:
+      - "Mix of `getUserData` and `fetch_user_info` in same module"
+      - "Variable `d` used for date object — unclear without context"
+      - "File `utils.ts` alongside `string-helpers.ts` — inconsistent pattern"
+
+  - id: type-safety
+    name: Type Safety
+    description: >
+      Use of `any` type, missing return types, untyped function parameters,
+      type assertions without validation, missing null checks,
+      inconsistent use of optional chaining.
+    severity: high
+    examples:
+      - "Function parameter typed as `any` — loses type checking"
+      - "API response cast with `as UserProfile` without validation"
+      - "Optional field accessed without `?.` — potential runtime crash"
+
+  - id: complexity
+    name: Excessive Complexity
+    description: >
+      Functions exceeding 50 lines, deeply nested conditionals (>3 levels),
+      components with too many responsibilities, complex ternary chains,
+      switch statements that should be lookup tables.
+    severity: medium
+    examples:
+      - "Function `processOrder()` is 120 lines with 5 nested if/else"
+      - "Triple nested ternary for rendering — unreadable"
+      - "Component handles form, validation, API call, and routing — split needed"
+
+scan_instructions: |
+  1. Read each file and identify issues matching the criteria above.
+  2. For each finding, note the specific file path and approximate location.
+  3. Assess severity: critical (breaks things), high (likely bugs), medium (tech debt), low (style).
+  4. Estimate effort: small (<30min), medium (1-2h), large (half day+), xlarge (multi-day).
+  5. Prioritize findings that affect maintainability and reliability.
+  6. Ignore intentional patterns (e.g., `any` in type-guard functions).
+  7. Group related findings (e.g., "duplication across hooks" as one item, not 15).

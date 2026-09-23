@@ -1,0 +1,45 @@
+# Strategic Lens — Director Atelier
+# Items derived from PRD analysis — features that should exist but don't.
+
+lens: strategic
+name: Strategic Alignment
+description: >
+  Items derived from PRD/story analysis. Represents intentional product gaps:
+  acceptance criteria not yet met, tasks not yet started, features defined
+  but not implemented. These are strategic priorities, not tactical fixes.
+agent: strategy-planner
+weight: 1.0
+
+criteria:
+  - id: prd-gap
+    name: PRD Gap
+    severity: high
+    description: >
+      Feature or acceptance criterion from a PRD/story that is not yet
+      implemented in the codebase. These represent intentional product
+      decisions that haven't been executed.
+    examples:
+      - "Pipeline produces a single HTML file (Story 305, Acceptance Criteria)"
+      - "QA gate uses 6-dimension weighted rubric (Story 305, Task 6)"
+      - "npm script registered: atelier:presentation (Story 305, Acceptance Criteria)"
+
+  - id: prd-stale
+    name: Stale PRD
+    severity: medium
+    description: >
+      PRD checkbox not updated despite evidence that the work has been done.
+      The implementation exists in the codebase but the story hasn't been
+      updated to reflect completion. Causes inaccurate tracking.
+    examples:
+      - "config.yaml exists with model routing — checkbox unchecked but file exists"
+      - "Agent definitions complete — checkbox unchecked but agents/ has 6 files"
+      - "Tests pass — checkbox unchecked but test suite runs green"
+
+scan_instructions: |
+  1. Parse story files using prd-parser.js to extract pending criteria and tasks.
+  2. For each pending item, check if the described feature/file actually exists.
+  3. If it exists but checkbox is unchecked: flag as prd-stale (update the checkbox).
+  4. If it doesn't exist: flag as prd-gap (needs implementation).
+  5. Prioritize items from stories that are near completion (most checkboxes done).
+  6. Skip items from stories that haven't started unless they're high-priority.
+  7. Consider dependencies between stories when prioritizing.
